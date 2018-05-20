@@ -1,0 +1,88 @@
+#quantmod
+devtools::install_github("joshuaulrich/quantmod", ref="157_yahoo_502")
+getSymbols('MSFT',src='yahoo')
+newenvironment<-new.env()
+getSymbols("AAPL",env=newenvironment,scr="yahoo")
+ls(envir=newenvironment)
+get("AAPL",envir=newenvironment)
+
+#########quantmod,瑁呰浇鏈€鏂扮殑R鐗堟湰锛屽啀鍒嗗埆瑁呭崟鐙▼搴忓寘
+getSymbols("EDU",src="yahoo",from="2013-08-20",to="2013-10-02")
+new.environment<-new.env()
+getSymbols("AAPL",env=new.environment,src="yahoo",from="2013-10-01",to="2013-10-23")
+ls(envir=new.environment)
+get("AAPL",envir=new.environment)
+
+getSymbols("000300.ss",env=new.environment,src="yahoo",from="2013-09-01",to="2013-10-23")
+ls(envir=new.environment)
+get("000300.SS",envir=new.environment)
+
+#############浠巓anda涓婅幏鍙栨眹鐜?
+new.environment=new.env()
+getFX("HKD/USD",from="2013-10-20",env=new.environment,src="oanda")
+ls(envir=new.environment)
+get("HKDUSD",envir=new.environment)
+##########################浠嶻ahoo锛? Finance涓婁笅杞借偂鎭暟鎹?
+getDividends("AAPL",env=new.environment,src="yahoo",from="2012-10-01",to="2014-10-23",verbose = TRUE)
+
+is.OHLC(EDU)
+has.OHLC(EDU,which=TRUE)
+Op(EDU)
+OHLC(EDU) 
+Delt(Op(EDU),type=c("arithmetic")) ########鍙樺寲鐜囩瓑浠稯pCl(EDU)
+Delt(Op(EDU),Cl(EDU))#######寮€鐩樹环VS鏀剁洏浠峰彉鍖栫巼
+last(EDU,5)
+Next(EDU,1)######瑙傛祴鍊煎悜鍓嶇Щ鍔?
+to.weekly(EDU)##########鎻愬彇璇ュ懆鐨勫紑鐩樹环銆佹敹鐩樹环銆佹垚浜ら噺鏁版嵁
+to.monthly(EDU)
+
+
+
+#######计算不同阶段收益率
+getSymbols("AAPL",src="yahoo",from="2013-10-01",to="2013-10-23")
+periodReturn(AAPL,period = "daily")
+dailyReturn(AAPL)
+first(allReturns(AAPL),10)
+getSymbols("AAPL",scr="yahoo")
+periodReturn(AAPL,period="daily",subset="2013-10-01::2013-10-23",type="log")
+#############图表展示
+chartSeries(AAPL,theme="white")
+chartSeries(AAPL,name="AAPL CHART",subset="2013-10-01::2013-10-23")
+chartSeries(AAPL,name="AAPL BARCHART",subset="2013-10-01::2013-10-23",type="bars")
+chartSeries(AAPL,name="AAPL LINECHART",subset="2013-10-01::2013-10-23",type="line")
+chartSeries(AAPL,name="AAPL LINECHART",subset="2013-10-01::2013-10-23",type="candlesticks")
+reChart(type="bars",subset="2013-10-05::2013-10-29", show.grid=TRUE)
+barChart(AAPL,theme="black",subset="last 10 weeks")
+barChart(AAPL,theme="black",subset="first 10 weeks")
+##########技术分析
+chartSeries(AAPL,name="AAPL LINECHART",subset="2013-10-01::2013-10-23",type="candlesticks")
+addADX()
+ADX(cbind(Hi(AAPL),Lo(AAPL),Cl(AAPL)),n=14,maType="EMA",wilder=TRUE)
+chartSeries(AAPL,name="AAPL CANDLECHART",subset="2013-06::2013-10-23",type="candlesticks")
+addATR()  #########真实波动
+addBBands(n=14,sd=2,draw="bands")#######布林带
+addCCI()#####买超卖指标
+addRSI()#####相对强弱指标
+addVo()#########成交量
+
+
+chartSeries(AAPL,name="AAPL CANDLECHART",subset="2013-06::2013-10-23",type="candlesticks",
+            TA="addBBands();addROC();addCCI()")####技术分析合一
+
+#####################例子
+stocks<- c("AAPL","GOOG","MSFT","ORCL")
+date_begin<-as.Date("2013-10-01")
+date_end<-as.Date("2013-12-08")
+tickers<-getSymbols(stocks, from = date_begin, to = date_end, auto.assign = TRUE)
+dataset <- Ad(get(tickers[1]))
+for (i in 2:length(tickers)) {
+  dataset <- merge(dataset, Ad(get(tickers[i])))######按列合并
+}
+return_lag <- 5
+data <- ROC(dataset, return_lag, type = "discrete")#######按五天计算变化率
+names(data) <-stocks
+###data_omit <- na.omit(dataset) # 去除缺失值
+###data_locf <- na.locf(dataset) # 把上一个观测值填补上来
+###data_approx <- na.approx(dataset) # 线性近似填补数据
+###data_spline <- na.spline(dataset) #用三次样条填补数据
+data<-data[-1:5,]
